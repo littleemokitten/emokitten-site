@@ -223,7 +223,7 @@
 
     <div class="info-wrapper">
         <div class="info-title-box">
-          <p>My links are often blocked, so it's best to click here and "Open in browser" first 😜</p>
+          <p>My linkz are often blocked, so it's best to click here and "Open in browser" first 😜</p>
           <img height="40" src="arrow.gif">
         </div>
     </div>
@@ -250,24 +250,7 @@
         function isMobileDevice() {
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
         }
-
-        window.addEventListener("load", (event) => {
-            
-            setTimeout(() => {
-                
-                if (/*folder === 'join' &&*/isMobileDevice()) {
-                    const infoBox = document.querySelector('.info-wrapper');
-                    const logo = document.querySelector('.logo');
-                    infoBox.classList.add('show');
-                    logo.classList.add('transparent');
-                }
-
-            }, 900);
-
-        });
-
-
-
+        
         function detectInAppBrowser() {
           const ua = navigator.userAgent.toLowerCase();
           const ref = document.referrer || "";
@@ -288,6 +271,20 @@
           return (uaHit || envHit) && popupBlocked;
         }
         
+        window.addEventListener("load", (event) => {
+            
+            setTimeout(() => {
+                
+                if (/*folder === 'join' &&isMobileDevice()*/detectInAppBrowser()) {
+                    const infoBox = document.querySelector('.info-wrapper');
+                    const logo = document.querySelector('.logo');
+                    infoBox.classList.add('show');
+                    logo.classList.add('transparent');
+                }
+
+            }, 400);
+
+        });
                 
         /* ─────────────────────────────────────────────
          NEW SECTION: auto-open in browser
