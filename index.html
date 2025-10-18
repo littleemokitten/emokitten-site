@@ -198,7 +198,7 @@
 
 <body>
 
-    <div class="container text-center bg-transparent">
+    <div class="container text-center bg-transparent position-relative" style="height:150vh;">
 
         <img src="logo.png" class="logo w-50"
             style="margin-top:40px; margin-bottom:40px; min-width: 300px;">
@@ -217,6 +217,8 @@
 
         </div>
 
+        <p class="position-absolute debug-info" style="bottom: 0; font-size:10px; opacity:0.2;"></p>
+
     </div>
 
     <img class="kitten" src="kitten.png">;
@@ -234,6 +236,8 @@
 
     <script>
 
+        const debugInfoEl = document.body.querySelector('.debug-info');
+        
         function extractFolderFromURL() {
             const [, folder] = window.location.pathname.split(/^\/([^/]+)/);
 
@@ -262,13 +266,13 @@
               /facebook|instagram|tiktok/i.test(b.brand)
             ) ||
             /instagram\.com|tiktok\.com|facebook\.com/.test(ref);
-          const popupBlocked = (() => {
-            const w = window.open('about:blank', '_blank');
-            if (!w || w.closed) return true;
-            w.close();
-            return false;
-          })();
-          return (uaHit || envHit) && popupBlocked;
+          // const popupBlocked = (() => {
+          //   const w = window.open('about:blank', '_blank');
+          //   if (!w || w.closed) return true;
+          //   w.close();
+          //   return false;
+          // })();
+          return (uaHit || envHit);
         }
         
         window.addEventListener("load", (event) => {
@@ -292,20 +296,27 @@
           (function autoOpenInBrowser() {
             const ua = navigator.userAgent.toLowerCase();
             const isInApp = detectInAppBrowser();
+
+              const isAndroid = /android/.test(ua);
+              const isIOS = /iphone|ipad|ipod/.test(ua);
+              const platform = isAndroid ? 'android' : isIOS ? 'ios' : 'other';
+            
+              debugInfoEl.innerText = `UA: ${navigator.userAgent}\nIn-App: ${isInApp}\nPlatform: ${platform}\nIs mobile: ${isMobileDevice()}`;
+              
             if (!isInApp) return; // do nothing if normal browser
         
             // Delay slightly so page elements render first
             setTimeout(() => {
               try {
                 // Android "intent://" trick (shows system popup)
-                if (/android/.test(ua)) {
+                if (isAndroid) {
                   const intentUrl = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
                   window.location.href = intentUrl;
                   return;
                 }
         
                 // iOS fallback: self-redirect triggers Safari popup
-                if (/iphone|ipad|ipod/.test(ua)) {
+                if (isIOS) {
                   const current = location.href.replace(/^http:/, 'https:');
                   window.location.href = current;
                 }
