@@ -258,7 +258,7 @@
         function detectInAppBrowser() {
           const ua = navigator.userAgent.toLowerCase();
           const ref = document.referrer || "";
-          const uaHit = /instagram|fb_iab|fbav|fbios|tiktok|musical_ly|messenger/.test(ua);
+          const uaHit = /instagram|fb_iab|fbav|fbios|tiktok|musical_ly|BytedanceWebview|messenger/.test(ua);
           const envHit =
             !!window.__fbSdkReady__ ||
             !!window.TikTokWebView ||
@@ -297,33 +297,49 @@
             const ua = navigator.userAgent.toLowerCase();
             const isInApp = detectInAppBrowser();
 
+              // detect if we already forwarded
+              const url = new URL(location.href);
+              const hasForwarded = url.searchParams.get('forward') === 'true';
+              //Stop infinate loops
+              if (!hasForwarded) {
+                    if (debugInfoEl) debugInfoEl.innerText = 'Has already forwarded';
+                  return false;
+              }
+              
               const isAndroid = /android/.test(ua);
               const isIOS = /iphone|ipad|ipod/.test(ua);
               const platform = isAndroid ? 'android' : isIOS ? 'ios' : 'other';
             
-              debugInfoEl.innerText = `UA: ${navigator.userAgent}\nIn-App: ${isInApp}\nPlatform: ${platform}\nIs mobile: ${isMobileDevice()}`;
+              if (debugInfoEl) debugInfoEl.innerText = `UA: ${navigator.userAgent}\nIn-App: ${isInApp}\nPlatform: ${platform}\nIs mobile: ${isMobileDevice()}`;
               
             if (!isInApp) return; // do nothing if normal browser
-        
+
+            const redirectUrl = new URL(location.href);
+            redirectUrl.searchParams.set('forward', 'true');
+              
             // Delay slightly so page elements render first
             setTimeout(() => {
               try {
-                // Android "intent://" trick (shows system popup)
-                if (isAndroid) {
-                  const intentUrl = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
-                  window.location.href = intentUrl;
-                  return;
-                }
-        
-                // iOS fallback: self-redirect triggers Safari popup
-                if (isIOS) {
-                  const current = location.href.replace(/^http:/, 'https:');
-                  window.location.href = current;
-                }
+                // open the real browser depending on platform
+                  
+                  if (isAndroid) {
+                     // Android "intent://" trick (shows system popup)
+                    location.href = `intent://${redirectUrl.host}${redirectUrl.pathname}${redirectUrl.search}#Intent;scheme=https;package=com.android.chrome;end`;
+                  } else if (isIOS) {
+                    // iOS Safari deep open
+                    location.href = redirectUrl.toString().replace(/^https?:\/\//, 'googlechrome://');
+                  } else {
+                    // fallback for other platforms
+                    location.href = redirectUrl.toString();
+                  }
+                  
               } catch (e) {
                 console.warn('Redirect failed', e);
+                if (debugInfoEl) debugInfoEl.innerText += `\nRedirect failed: ${e.message || e}`;
               }
             }, 1200);
+
+        
           })();
 
         
