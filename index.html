@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+n<!DOCTYPE html>
 
 <html>
 
@@ -301,7 +301,7 @@
               const url = new URL(location.href);
               const hasForwarded = url.searchParams.get('forward') === 'true';
               //Stop infinate loops
-              if (!hasForwarded) {
+              if (hasForwarded) {
                     if (debugInfoEl) debugInfoEl.innerText = 'Has already forwarded';
                   return false;
               }
@@ -313,7 +313,7 @@
               if (debugInfoEl) debugInfoEl.innerText = `UA: ${navigator.userAgent}\nIn-App: ${isInApp}\nPlatform: ${platform}\nIs mobile: ${isMobileDevice()}`;
               
             if (!isInApp) return; // do nothing if normal browser
-
+              
             const redirectUrl = new URL(location.href);
             redirectUrl.searchParams.set('forward', 'true');
               
