@@ -225,7 +225,7 @@
 
     <div class="info-wrapper">
         <div class="info-title-box">
-          <p>My linkz are often blocked, so it's best to click here and "Open in browser" first 😜</p>
+          <p>My links are often blocked, so it's best to click here and "Open in browser" first 😜</p>
           <img height="40" src="arrow.gif">
         </div>
     </div>
@@ -237,6 +237,32 @@
     <script>
 
         const debugInfoEl = document.body.querySelector('.debug-info');
+
+        const socialLinkBtns = document.body.querySelectorAll('.social-link-buttons');
+        function getUrlParam(name) {
+          const params = new URLSearchParams(window.location.search);
+          return params.get(name) || null;
+        }
+
+        const socialLinkBtns = document.body.querySelectorAll('.social-link-buttons > a');
+        const utmSource = getUrlParam("utm_source");
+
+        if (utmSource) {
+          socialLinkBtns.forEach(link => {
+            try {
+              const url = new URL(link.href);
+        
+              // Set or replace existing utm_source
+              url.searchParams.set("utm_source", utmSource);
+        
+              // Update the link
+              link.href = url.toString();
+              
+            } catch (e) {
+              console.warn("Invalid URL in social link:", link.href);
+            }
+          });
+        }
         
         function extractFolderFromURL() {
             const [, folder] = window.location.pathname.split(/^\/([^/]+)/);
@@ -279,7 +305,7 @@
             
             setTimeout(() => {
                 
-                if (/*folder === 'join' &&*/isMobileDevice()) {
+                if (isMobileDevice()) {
                     const infoBox = document.querySelector('.info-wrapper');
                     const logo = document.querySelector('.logo');
                     infoBox.classList.add('show');
@@ -294,6 +320,7 @@
          NEW SECTION: auto-open in browser
          ───────────────────────────────────────────── */
           (function autoOpenInBrowser() {
+              return false;
             const ua = navigator.userAgent.toLowerCase();
             const isInApp = detectInAppBrowser();
 
